@@ -31,7 +31,6 @@ const addCityToList = (elem, city) => {
 };
 // создание блока страны - вставляется после item, возвращаем созданный countryBlock
 const countryBlockCreate = (item, listsCol) => {
-    console.log(item);
     const countryBlock = document.createElement('div');
     countryBlock.className = 'dropdown-lists__countryBlock';
     listsCol.insertAdjacentElement('beforeend', countryBlock);
@@ -76,10 +75,10 @@ const citiesForSelect = (item, elem) => {
 };
 
 const toggleLists = event => {
-    const target = event.target;
-    const country = target.querySelector('.dropdown-lists__country').textContent;
+    const insideLine = event.target.closest('.dropdown-lists__total-line');
+    let country = insideLine.querySelector('.dropdown-lists__country').textContent;
+    console.log('country: ', country);
     let indexOfCountry;
-
     for (let i = 0; i < data.RU.length; i++) {
         if (data.RU[i].country === country) {
             indexOfCountry = i;
@@ -112,7 +111,7 @@ const listSelectCreate = (indexOfCountry) => {
     const listSelect = document.querySelector('.dropdown-lists__list--select');
     const listsCol = listSelect.querySelector('.dropdown-lists__col');
     const countryBlock = countryBlockCreate(data.RU[indexOfCountry], listsCol);
-    console.log(countryBlock);
+
 
     citiesForSelect(data.RU[indexOfCountry], countryBlock);
 
