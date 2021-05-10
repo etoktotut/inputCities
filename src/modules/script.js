@@ -457,7 +457,6 @@ const main = () => {
         })
         .then((response) => {
             data = response;
-            console.log(data);
             listWork();
         })
         .catch((error) => console.error(error));
