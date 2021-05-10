@@ -304,7 +304,7 @@ const listDefaultCreate = () => {
     const listDefault = document.querySelector('.dropdown-lists__list--default');
     const listsCol = listDefault.querySelector('.dropdown-lists__col');
 
-    for (const item of data.RU) {
+    for (const item of data) {
         const countryBlock = countryBlockCreate(item, listsCol);
         citiesForDefault(item, countryBlock);
     }
@@ -319,14 +319,14 @@ const listSelectCreate = (country) => {
     const listsCol = listSelect.querySelector('.dropdown-lists__col');
 
     let indexOfCountry;
-    for (let i = 0; i < data.RU.length; i++) {
-        if (data.RU[i].country === country) {
+    for (let i = 0; i < data.length; i++) {
+        if (data[i].country === country) {
             indexOfCountry = i;
             break;
         }
     }
-    const countryBlock = countryBlockCreate(data.RU[indexOfCountry], listsCol);
-    citiesForSelect(data.RU[indexOfCountry], countryBlock);
+    const countryBlock = countryBlockCreate(data[indexOfCountry], listsCol);
+    citiesForSelect(data[indexOfCountry], countryBlock);
     //listSelect.style.display = 'block';
 };
 
@@ -338,7 +338,7 @@ const listAutoCreate = (str) => {
     const listsCol = listAuto.querySelector('.dropdown-lists__col');
     let alert = true;
 
-    for (const item of data.RU) {
+    for (const item of data) {
         let countryBlock;
         if (item.country.toLowerCase().indexOf(str.toLowerCase()) === 0) {
             countryBlock = countryBlockCreateSpecial(item, listsCol, str);
@@ -446,11 +446,12 @@ const main = () => {
 
     inputCities.style.display = "none";
     mainDiv.appendChild(statusAnim);
-    fetch('./db_cities.json')
+    fetch('http://localhost:3000/RU')
         .then((response) => {
             if (response.status !== 200) {
                 throw new Error('status network not 200');
             }
+
             setTimeout(function () {
                 mainDiv.removeChild(statusAnim);
                 inputCities.style.display = "block";
@@ -458,7 +459,9 @@ const main = () => {
             return (response.json());
         })
         .then((response) => {
+
             data = response;
+            console.log(data);
             listWork();
         })
         .catch((error) => console.error(error));
