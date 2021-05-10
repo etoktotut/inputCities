@@ -218,11 +218,13 @@ const listAnimateToLeft = (list1, list2, time, callback) => {
 
     const draw2 = () => {
         list2.style.display = 'block';
+        list1.style.display = 'none';
         position2 -= step1;
         if (position2 < step1) { step1 = position2; }
         list2.style.transform = `translate(${position2}%)`;
         if (position2 <= 0) {
             cancelAnimationFrame(timerId);
+
             list2.style.transform = `translate(0%)`;
             list1.style.transform = `translate(0%)`;
             if (typeof callback !== 'undefined') {
@@ -239,7 +241,7 @@ const listAnimateToLeft = (list1, list2, time, callback) => {
         list1.style.transform = `translate(${position1}%)`;
         if (Math.abs(position1) >= 100) {
             list1.style.transform = `translate(-100%)`;
-            list1.style.display = 'none';
+
             cancelAnimationFrame(timerId);
             timerId = requestAnimationFrame(draw2);
             return;
