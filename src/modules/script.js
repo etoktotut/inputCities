@@ -459,9 +459,7 @@ const main = () => {
             return (response.json());
         })
         .then((response) => {
-
             data = response;
-            console.log(data);
             listWork();
         })
         .catch((error) => console.error(error));
