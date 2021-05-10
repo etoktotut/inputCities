@@ -202,7 +202,53 @@ const citiesForSelect = (item, elem) => {
         addCityToList(elem, city);
     }
 };
+//list Animation
+const listAnimateToLeft = (list1, list2, time, callback) => {
+    list1.style.position = "relative";
+    list1.style.transform = `translate(0%)`;
+    list2.style.position = "relative";
+    list2.style.transform = `translate(100%)`;
+    //    list2.style.display = 'block';
 
+    let step = 100 / (time / 17);
+    let step1 = 100 / (time / 17);
+    let position1 = 0;
+    let position2 = 100;
+    let timerId;
+
+    const draw2 = () => {
+        list2.style.display = 'block';
+        position2 -= step1;
+        if (position2 < step1) { step1 = position2; }
+        list2.style.transform = `translate(${position2}%)`;
+        if (position2 <= 0) {
+            cancelAnimationFrame(timerId);
+            list2.style.transform = `translate(0%)`;
+            list1.style.transform = `translate(0%)`;
+            if (typeof callback !== 'undefined') {
+                callback();
+            }
+            return;
+        }
+        requestAnimationFrame(draw2);
+    };
+
+    const draw1 = () => {
+        position1 -= step;
+        if (100 - Math.abs(position1) < step) { step = 100 - Math.abs(position1); }
+        list1.style.transform = `translate(${position1}%)`;
+        if (Math.abs(position1) >= 100) {
+            list1.style.transform = `translate(-100%)`;
+            list1.style.display = 'none';
+            cancelAnimationFrame(timerId);
+            timerId = requestAnimationFrame(draw2);
+            return;
+        }
+        requestAnimationFrame(draw1);
+    };
+    timerId = requestAnimationFrame(draw1);
+
+};
 // очистка списка
 const listClear = list => {
     list.querySelector('.dropdown-lists__col').innerHTML = '';
@@ -215,6 +261,7 @@ const listDefaultDisable = () => {
 
 const listDefaultEnable = () => {
     const listDefault = document.querySelector('.dropdown-lists__list--default');
+    // listSlideToleft(listDefault, 100);
     listDefault.style.display = 'block';
 };
 
@@ -233,15 +280,18 @@ const listAutoDisableAndClear = () => {
 const toggleLists = event => {
     const isDefault = event.target.closest('.dropdown-lists__list--default');
     const listDefault = document.querySelector('.dropdown-lists__list--default');
+    const listSelect = document.querySelector('.dropdown-lists__list--select');
 
     if (!isDefault) {
-        listDefault.style.display = 'block';
-        listSelectDisableAndClear();
+        //listDefault.style.display = 'block';
+        listAnimateToLeft(listSelect, listDefault, 400, function () { listSelectDisableAndClear(); });
+        //listSelectDisableAndClear();
     } else {
         const insideLine = event.target.closest('.dropdown-lists__total-line');
         let country = insideLine.querySelector('.dropdown-lists__country').textContent;
         listSelectCreate(country);
-        listDefaultDisable();
+        listAnimateToLeft(listDefault, listSelect, 400);
+
     }
 
 };
@@ -275,7 +325,7 @@ const listSelectCreate = (country) => {
     }
     const countryBlock = countryBlockCreate(data.RU[indexOfCountry], listsCol);
     citiesForSelect(data.RU[indexOfCountry], countryBlock);
-    listSelect.style.display = 'block';
+    //listSelect.style.display = 'block';
 };
 
 // список автопоиска
