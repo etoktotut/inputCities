@@ -394,9 +394,14 @@ const inputHandler = () => {
 
 
 // начальная набивка списков
-const listWork = () => {
+const listWork = (countryName) => {
+    console.log(countryName);
+
     let isListDefault = false;
     const selectCities = document.getElementById('select-cities');
+    // if (selectCities.value !== '') {
+    //     selectCities.focus();
+    // }
     selectCities.addEventListener('click', () => {
         if (!isListDefault) {
             isListDefault = listDefaultCreate();
@@ -417,15 +422,37 @@ const listWork = () => {
 
 };
 
-const main = () => {
+const localePrompts = (locale) => {
+    const prompts = {
+        "RU": {
+            "label": "Страна или город",
+            "button": "Перейти",
+            "country": "Россия"
+        },
+        "EN": {
+            "label": "Country or city",
+            "button": "Go to",
+            "country": "United Kingdom"
+        },
+        "DE": {
+            "label": "Land oder Stadt",
+            "button": "Gehe zu",
+            "country": "Deutschland"
+        },
 
-    window.onload = function () {
-        const selectCities = document.getElementById('select-cities');
-        selectCities.value = '';
     };
+    document.querySelector('.label').textContent = prompts[locale].label;
+    document.querySelector('.button').textContent = prompts[locale].button;
 
-    const mainDiv = document.querySelector('.main');
+    return prompts[locale].country;
+};
+
+
+
+const fetchData = (locale, isFetchFromServer) => {
+    const countryName = localePrompts(locale);
     const inputCities = document.querySelector('.input-cities');
+    const mainDiv = document.querySelector('.main');
 
     const statusAnim = document.createElement('div');
     statusAnim.innerHTML = `<div class="sk-circle">
@@ -446,23 +473,67 @@ const main = () => {
 
     inputCities.style.display = "none";
     mainDiv.appendChild(statusAnim);
-    fetch('http://localhost:3000/RU')
-        .then((response) => {
-            if (response.status !== 200) {
-                throw new Error('status network not 200');
-            }
 
-            setTimeout(function () {
-                mainDiv.removeChild(statusAnim);
-                inputCities.style.display = "block";
-            }, 2000);
-            return (response.json());
-        })
-        .then((response) => {
-            data = response;
-            listWork();
-        })
-        .catch((error) => console.error(error));
+    if (!isFetchFromServer && (localStorage.getItem('data') !== null)) {
+        mainDiv.removeChild(statusAnim);
+        inputCities.style.display = "block";
+        data = JSON.parse(localStorage.getItem('items'));
+        listWork(countryName);
+    } else {
+        fetch(`http://localhost:3000/${locale}`)
+            .then((response) => {
+                if (response.status !== 200) {
+                    throw new Error('status network not 200');
+                }
+
+                setTimeout(function () {
+                    mainDiv.removeChild(statusAnim);
+                    inputCities.style.display = "block";
+                }, 2000);
+                return (response.json());
+            })
+            .then((response) => {
+                data = response;
+                localStorage.setItem('data', JSON.stringify(data));
+                //const dataget = 
+                listWork(countryName);
+            })
+            .catch((error) => console.error(error));
+    }
+
+
+};
+
+const main = () => {
+
+    window.onload = function () {
+        document.getElementById('select-cities').value = '';
+
+    };
+
+    const popup = document.getElementById('prompt-form-container');
+    popup.style.display = 'none';
+
+    const locale = document.cookie.split('; ').find(row => row.startsWith('locale='));
+
+    if (typeof locale === 'undefined') {
+        const inputCities = document.querySelector('.input-cities');
+        const popup = document.getElementById('prompt-form-container');
+        const startButton = document.getElementById('start-button');
+        const selectLocale = document.getElementById('locale');
+        inputCities.style.display = 'none';
+        popup.style.display = 'block';
+        startButton.addEventListener('click', () => {
+            popup.style.display = 'none';
+            inputCities.style.display = 'block';
+            document.cookie = `locale=${selectLocale.value}`;
+            fetchData(selectLocale.value, true);
+        });
+    } else {
+        const loc = locale.split('=')[1];
+        fetchData(loc, false);
+    }
+
 
 };
 export default main;
