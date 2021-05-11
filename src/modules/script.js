@@ -300,15 +300,23 @@ const toggleLists = event => {
 
 //Большой список
 
-const listDefaultCreate = () => {
+const listDefaultCreate = (countryName) => {
     const listDefault = document.querySelector('.dropdown-lists__list--default');
     const listsCol = listDefault.querySelector('.dropdown-lists__col');
 
     for (const item of data) {
-        const countryBlock = countryBlockCreate(item, listsCol);
-        citiesForDefault(item, countryBlock);
+        if (item.country === countryName) {
+            const countryBlock = countryBlockCreate(item, listsCol);
+            citiesForDefault(item, countryBlock);
+        }
     }
 
+    for (const item of data) {
+        if (item.country !== countryName) {
+            const countryBlock = countryBlockCreate(item, listsCol);
+            citiesForDefault(item, countryBlock);
+        }
+    }
     return true;
 };
 
@@ -395,16 +403,14 @@ const inputHandler = () => {
 
 // начальная набивка списков
 const listWork = (countryName) => {
-    console.log(countryName);
-
     let isListDefault = false;
     const selectCities = document.getElementById('select-cities');
-    // if (selectCities.value !== '') {
-    //     selectCities.focus();
-    // }
+
     selectCities.addEventListener('click', () => {
         if (!isListDefault) {
-            isListDefault = listDefaultCreate();
+            listSelectDisableAndClear();
+            listAutoDisableAndClear();
+            isListDefault = listDefaultCreate(countryName);
         } else if (selectCities.value === '') {
             listSelectDisableAndClear();
             listAutoDisableAndClear();
@@ -477,7 +483,7 @@ const fetchData = (locale, isFetchFromServer) => {
     if (!isFetchFromServer && (localStorage.getItem('data') !== null)) {
         mainDiv.removeChild(statusAnim);
         inputCities.style.display = "block";
-        data = JSON.parse(localStorage.getItem('items'));
+        data = JSON.parse(localStorage.getItem('data'));
         listWork(countryName);
     } else {
         fetch(`http://localhost:3000/${locale}`)
@@ -495,7 +501,6 @@ const fetchData = (locale, isFetchFromServer) => {
             .then((response) => {
                 data = response;
                 localStorage.setItem('data', JSON.stringify(data));
-                //const dataget = 
                 listWork(countryName);
             })
             .catch((error) => console.error(error));
@@ -508,7 +513,7 @@ const main = () => {
 
     window.onload = function () {
         document.getElementById('select-cities').value = '';
-
+        listAutoDisableAndClear();
     };
 
     const popup = document.getElementById('prompt-form-container');
